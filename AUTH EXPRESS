@@ -1,0 +1,25 @@
+const addUser = async (req, res) => {
+  const checknick = await User.find({ nickname: req.body.nickname }) //checks if user exists with nickname
+  if (checknick.length !== 0) {
+    return res.send({
+      message: 'user already exists, please use another nickname',
+    })
+  }
+
+  const secretInfo = await hash(req.body.password).catch((err) =>
+    res.send('password is required!')
+  )
+  const user = new User({
+    name: req.body.name,
+    surname: req.body.surname,
+    nickname: req.body.nickname,
+    password: secretInfo.password,
+    salt: secretInfo.salt,
+  })
+  user.save((err, result) => {
+    if (err) {
+      return res.send(err)
+    }
+    res.send('user added sucesessfully')
+  })
+}
